@@ -1,15 +1,17 @@
 #!/user/bin/bash
 
 stty -echo -icanon time 0 min 0
-clear
+tput civis # cursor off
 
 current_selection=0
 directory="$(pwd)"
-files=( $(ls -1) )
+files=( $(ls) )
+columns=$(tput cols)
+left_width=$((columns / 2 - 2))
+right_width=$((columns / 2 - 2))
 
-# Funkcja do rysowania ekranu
 draw_screen() {
-    clear
+    tput reset
     tput cup 0 0
     echo "Aktualny katalog: $directory"
     
@@ -23,6 +25,17 @@ draw_screen() {
             echo "  ${files[$i]}"
         fi
     done
+
+    selected_item="${files[$current_selection]}"
+    if [ -d "$directory/$selected_item" ]; then
+        subfiles=( $(ls "$directory/$selected_item") )
+        tput cup 0 $((left_width + 4))
+        echo "Zawartość: $slected_item"
+        for j in "${!subfiles[@]}"; do
+            tput cup $((j+2)) $((left_width +4))
+            echo " ${subfiles[$j]}"
+        done
+    fi
     
     tput cup $(( ${#files[@]} + 4 )) 0
     echo "Strzałki: Nawigacja | Enter: Otwórz | q: Wyjście"
@@ -35,19 +48,28 @@ while true; do
         read -rsn2 key  
     fi
     case "$key" in
-        "[A")
+        "[A") # up
             ((current_selection > 0)) && ((current_selection--))
             ;;
-        "[B")
+        "[B") # down
             ((current_selection < ${#files[@]} - 1)) && ((current_selection++))
             ;;
-        "q")
+        "[C") # right
+            selected_item="${files[$current_selection]}"
+            if [ -d "$directory/$selected_item" ]; then
+                directory="$directory/$selected_item"
+                files=( $(ls -1 "$directory") )
+                current_selection=0
+            fi
+            ;;
+        "q") # quite
             break
             ;;
     esac
     draw_screen
 done
 
+clear
 stty echo icanon
 tput cnorm  
-clear
+
