@@ -1,4 +1,4 @@
-#!/user/bin/bash
+#!/bin/bash
 
 stty -echo -icanon time 0 min 0
 tput civis # cursor off
@@ -43,10 +43,12 @@ draw_screen() {
 
 draw_screen
 while true; do
-    read -rsn1 key 
+    read -rsn1 key
+
     if [[ "$key" == $'\x1b' ]]; then
         read -rsn2 key  
     fi
+
     case "$key" in
         "[A") # up
             ((current_selection > 0)) && ((current_selection--))
@@ -58,9 +60,14 @@ while true; do
             selected_item="${files[$current_selection]}"
             if [ -d "$directory/$selected_item" ]; then
                 directory="$directory/$selected_item"
-                files=( $(ls -1 "$directory") )
+                files=( $(ls "$directory") )
                 current_selection=0
             fi
+            ;;
+        "[D") #left
+            directory="$(dirname "$directory")"
+            files=( $(ls "$directory") )
+            current_selection=0
             ;;
         "q") # quite
             break
