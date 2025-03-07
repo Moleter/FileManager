@@ -13,7 +13,7 @@ right_width=$((columns / 2 - 2))
 draw_screen() {
     tput reset
     tput cup 0 0
-    echo "Aktualny katalog: $directory"
+    echo "$directory"
     
     for i in "${!files[@]}"; do
         tput cup $((i+2)) 2
@@ -26,6 +26,7 @@ draw_screen() {
         fi
     done
 
+    count=0
     selected_item="${files[$current_selection]}"
     if [ -d "$directory/$selected_item" ]; then
         subfiles=( $(ls "$directory/$selected_item") )
@@ -34,6 +35,12 @@ draw_screen() {
         for j in "${!subfiles[@]}"; do
             tput cup $((j+2)) $((left_width +4))
             echo " ${subfiles[$j]}"
+
+            ((count++))
+            if [ "$count" -ge 10 ]; then
+                tput cup $((j+2)) $((left_width +4))
+                break
+            fi
         done
     fi
     
