@@ -9,6 +9,7 @@ files=( $(ls) )
 columns=$(tput cols)
 left_width=$((columns / 2 - 2))
 right_width=$((columns / 2 - 2))
+max_display=10
 
 draw_screen() {
     tput reset
@@ -37,13 +38,18 @@ draw_screen() {
             echo " ${subfiles[$j]}"
 
             ((count++))
-            if [ "$count" -ge 10 ]; then
-                tput cup $((j+2)) $((left_width +4))
+            if [ "$count" -ge $max_display ]; then
                 break
             fi
         done
     fi
-    
+
+    if [ "${#subfiles[@]}" -gt "$max_display" ]; then
+        tput cup $((j+3)) $((left_width + 4))
+        echo " ..."
+    fi
+
+
     tput cup $(( ${#files[@]} + 4 )) 0
     echo "Strzałki: Nawigacja | Enter: Otwórz | q: Wyjście"
 }
