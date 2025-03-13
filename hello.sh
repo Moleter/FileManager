@@ -3,15 +3,18 @@
 stty -echo -icanon time 0 min 0
 tput civis # cursor off
 
+#variables
 current_selection=0
 directory="$(pwd)"
 files=( $(ls) )
 columns=$(tput cols)
 left_width=$((columns / 2 - 2))
 right_width=$((columns / 2 - 2))
-max_display=10
+max_display=10 #side files in list_side_files function
+count=0 # counter in list_side_files need to working function right
 
-draw_screen() {
+#functions
+list_main_files() {
     tput reset
     tput cup 0 0
     echo "$directory"
@@ -26,8 +29,9 @@ draw_screen() {
             echo "  ${files[$i]}"
         fi
     done
+}
 
-    count=0
+list_side_files() {
     selected_item="${files[$current_selection]}"
     if [ -d "$directory/$selected_item" ]; then
         subfiles=( $(ls "$directory/$selected_item") )
@@ -49,6 +53,13 @@ draw_screen() {
         echo " ..."
     fi
 
+}
+
+
+
+draw_screen() {
+    list_main_files
+    list_side_files
 
     tput cup $(( ${#files[@]} + 4 )) 0
     echo "Strzałki: Nawigacja | Enter: Otwórz | q: Wyjście"
