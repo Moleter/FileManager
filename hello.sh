@@ -55,8 +55,6 @@ list_side_files() {
 
 }
 
-
-
 draw_screen() {
     list_main_files
     list_side_files
@@ -65,7 +63,19 @@ draw_screen() {
     echo "Strzałki: Nawigacja | Enter: Otwórz | q: Wyjście"
 }
 
+enter_directory() {
+    selected_item="${files[$current_selection]}"
+    if [ -d "$directory/$selected_item" ]; then
+        directory="$directory/$selected_item"
+        files=( $(ls "$directory") )
+        current_selection=0
+    fi
+}
+
+# main 
+
 draw_screen
+
 while true; do
     read -rsn1 key
 
@@ -81,12 +91,7 @@ while true; do
             ((current_selection < ${#files[@]} - 1)) && ((current_selection++))
             ;;
         "[C") # right
-            selected_item="${files[$current_selection]}"
-            if [ -d "$directory/$selected_item" ]; then
-                directory="$directory/$selected_item"
-                files=( $(ls "$directory") )
-                current_selection=0
-            fi
+            enter_directory
             ;;
         "[D") #left
             directory="$(dirname "$directory")"
