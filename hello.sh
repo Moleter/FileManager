@@ -72,6 +72,12 @@ enter_directory() {
     fi
 }
 
+go_back() {
+    directory="$(dirname "$directory")"
+    files=( $(ls "$directory") )
+    current_selection=0
+}
+
 # main 
 
 draw_screen
@@ -94,9 +100,7 @@ while true; do
             enter_directory
             ;;
         "[D") #left
-            directory="$(dirname "$directory")"
-            files=( $(ls "$directory") )
-            current_selection=0
+            go_back
             ;;
         "q") # quite
             break
