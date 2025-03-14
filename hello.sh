@@ -11,30 +11,48 @@ columns=$(tput cols)
 left_width=$((columns / 2 - 2))
 right_width=$((columns / 2 - 2))
 max_display=10 #side files in list_side_files function
-count=0 # counter in list_side_files need to working function right
 
 #functions
 list_main_files() {
     tput reset
     tput cup 0 0
     echo "$directory"
+
+    local total_files=${#files[@]}
+
+    if (( current_selection < scroll_offset )); then
+        scroll_offset=$current_selection
+    elif (( current_selection >= scroll_offset + max_display)); then
+        scroll_offset=$(( current_selection - max_display + 1))
+    fi
     
-    for i in "${!files[@]}"; do
+    for (( i = 0; i < max_display; i++)); do
+        index=$(( scroll_offset + i ))
+        [ "$index" -ge "$total_files" ] && break
+
         tput cup $((i+2)) 2
-        if [ "$i" -eq "$current_selection" ]; then
+        if [ "$index" -eq "$current_selection" ]; then
             tput rev 
-            echo "> ${files[$i]}"
+            echo "> ${files[$index]}"
             tput sgr0 
         else
-            echo "  ${files[$i]}"
+            echo "  ${files[$index]}"
         fi
     done
+
+    if (( scroll_offset + max_display < total_files )); then
+        tput cup $((max_display + 2)) 2
+        echo " ..."
+    fi
+
 }
 
 list_side_files() {
-    selected_item="${files[$current_selection]}"
+    local count=0
+    local selected_item="${files[$current_selection]}"
+
     if [ -d "$directory/$selected_item" ]; then
-        subfiles=( $(ls "$directory/$selected_item") )
+        local subfiles=( $(ls "$directory/$selected_item") )
         tput cup 0 $((left_width + 4))
         echo "Zawartość: $slected_item"
         for j in "${!subfiles[@]}"; do
