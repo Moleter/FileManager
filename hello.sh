@@ -78,7 +78,7 @@ draw_screen() {
     list_side_files
 
     tput cup $(( ${#files[@]} + 4 )) 0
-    echo "Strzałki: Nawigacja | Enter: Otwórz | q: Wyjście"
+    echo "Strzałki: Nawigacja | ?: usuń | ?: zmień nazwę | ?: przenieś | q: Wyjście"
 }
 
 enter_directory() {
@@ -94,6 +94,18 @@ go_back() {
     directory="$(dirname "$directory")"
     files=( $(ls "$directory") )
     current_selection=0
+}
+
+delate_file() {
+
+}
+
+change_file_name() {
+
+}
+
+move_file() {
+    
 }
 
 # main 
