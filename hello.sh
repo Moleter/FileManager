@@ -42,7 +42,7 @@ list_main_files() {
 
     if (( scroll_offset + max_display < total_files )); then
         tput cup $((max_display + 2)) 2
-        echo " ..."
+        echo " ↓"
     fi
 
 }
