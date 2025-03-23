@@ -1,0 +1,3 @@
+/home/Adrian/dev/FileManager
+file7.txt
+/home/Adrian/dev/FileManager/test/Lvl0
