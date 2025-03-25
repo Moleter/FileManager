@@ -98,6 +98,13 @@ go_back() {
 
 delate_file() {
   selected_item="${files[$current_selection]}"
+
+  read -p "Are you sure aboute delete this file \"$selected_item\"? (Y/n): " confirm
+  if [[ "$confirm" != "Y" ]]; then
+    echo "Eelete canceled"
+    return
+  fi
+
   rm "$directory/$selected_item"
   files=($(ls "$directory"))
 }
