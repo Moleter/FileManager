@@ -78,7 +78,7 @@ draw_screen() {
   list_side_files
 
   tput cup $((${#files[@]} + 4)) 0
-  echo "Strzałki: Nawigacja | d: usuń | ?: zmień nazwę | ?: przenieś | q: Wyjście"
+  echo "Strzałki: Nawigacja | d: usuń | c: zmień nazwę | ?: przenieś | q: Wyjście"
 }
 
 enter_directory() {
@@ -109,9 +109,25 @@ delate_file() {
   files=($(ls "$directory"))
 }
 
-# change_file_name() {
-#
-# }
+change_file_name() {
+  selected_item="${files[$current_selection]}"
+
+  read -p "Are you want change name of fle \"$selected_item\" (Y/n): " confirm
+  if [[ "$confirm" != "Y" ]]; then
+    return
+  fi
+
+  read -p "Enter new name of file: " new_name
+
+  if [[ -z "$new_name" ]]; then
+    echo "Error! No new name provided!"
+    return
+  fi
+
+  mv -- "$directory/$selected_item" "$directory/$new_name"
+
+  files=($(ls "$directory"))
+}
 
 # move_file() {
 #
@@ -143,6 +159,9 @@ while true; do
     ;;
   "d") #delete file
     delate_file
+    ;;
+  "c") #change_file_name
+    change_file_name
     ;;
   "q") # quite
     break
