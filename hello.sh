@@ -6,18 +6,28 @@ tput civis # cursor off
 #variables
 current_selection=0
 directory="$(pwd)"
-files=($(ls))
+files=()
 columns=$(tput cols)
 left_width=$((columns / 2 - 2))
 right_width=$((columns / 2 - 2))
 max_display=10 #side files in list_side_files function
 
 #functions
+
+#Read files
+read_files() {
+  files=()
+  while IFS= read -r file; do
+    files+=("$file")
+  done < <(ls -1 "$directory")
+}
+
 list_main_files() {
   tput reset
   tput cup 0 0
   echo "$directory"
 
+  read_files
   local total_files=${#files[@]}
 
   if ((current_selection < scroll_offset)); then
@@ -49,10 +59,15 @@ list_main_files() {
 
 list_side_files() {
   local count=0
+  local subfiles=()
   local selected_item="${files[$current_selection]}"
 
   if [ -d "$directory/$selected_item" ]; then
-    local subfiles=($(ls "$directory/$selected_item"))
+
+    while IFS= read -r subfile; do
+      subfiles+=("$subfile")
+    done < <(ls -1 "$directory/$selected_item")
+
     tput cup 0 $((left_width + 4))
     echo "Zawartość: $slected_item"
     for j in "${!subfiles[@]}"; do
@@ -85,28 +100,33 @@ enter_directory() {
   selected_item="${files[$current_selection]}"
   if [ -d "$directory/$selected_item" ]; then
     directory="$directory/$selected_item"
-    files=($(ls "$directory"))
+    read_files
     current_selection=0
   fi
 }
 
 go_back() {
   directory="$(dirname "$directory")"
-  files=($(ls "$directory"))
+  read_files
   current_selection=0
 }
 
 delate_file() {
   selected_item="${files[$current_selection]}"
 
-  read -p "Are you sure aboute delete this file \"$selected_item\"? (Y/n): " confirm
-  if [[ "$confirm" != "Y" ]]; then
-    echo "Eelete canceled"
+  if [ ! -e "$directory/$selected_item" ]; then
+    echo "Error: File dosen't exist"
     return
   fi
 
-  rm "$directory/$selected_item"
-  files=($(ls "$directory"))
+  read -p "Are you sure aboute delete file \"$selected_item\"? (Y/n): " confirm
+  if [[ "$confirm" != "Y" ]]; then
+    echo "Delete canceled"
+    return
+  fi
+
+  rm -- "$directory/$selected_item"
+  read_files
 }
 
 change_file_name() {
@@ -126,7 +146,7 @@ change_file_name() {
 
   mv -- "$directory/$selected_item" "$directory/$new_name"
 
-  files=($(ls "$directory"))
+  read_files
 }
 
 # move_file() {
