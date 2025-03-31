@@ -1,3 +1,1 @@
-/home/Adrian/dev/FileManager
-file7.txt
-/home/Adrian/dev/FileManager/test/Lvl0
+mv: '/home/Adrian/dev/FileManager/test/file7.txt' i 'test/file7.txt' to ten sam plik

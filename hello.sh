@@ -11,10 +11,11 @@ columns=$(tput cols)
 left_width=$((columns / 2 - 2))
 right_width=$((columns / 2 - 2))
 max_display=10 #side files in list_side_files function
+files_to_move=()
+message="Helo in simple file comander in bash!"
 
 #functions
 
-#Read files
 read_files() {
   files=()
   while IFS= read -r file; do
@@ -93,7 +94,10 @@ draw_screen() {
   list_side_files
 
   tput cup $((${#files[@]} + 4)) 0
-  echo "Strzałki: Nawigacja | d: usuń | c: zmień nazwę | ?: przenieś | q: Wyjście"
+  echo "Strzałki: Nawigacja | d: usuń | c: zmień nazwę | m: przenieś | q: Wyjście"
+
+  tput cup $((${#files[@]} + 6)) 0
+  echo "$message"
 }
 
 enter_directory() {
@@ -115,17 +119,18 @@ delate_file() {
   selected_item="${files[$current_selection]}"
 
   if [ ! -e "$directory/$selected_item" ]; then
-    echo "Error: File dosen't exist"
+    message="Error: File dosen't exist"
     return
   fi
 
   read -p "Are you sure aboute delete file \"$selected_item\"? (Y/n): " confirm
   if [[ "$confirm" != "Y" ]]; then
-    echo "Delete canceled"
+    message="Delete canceled"
     return
   fi
 
   rm -- "$directory/$selected_item"
+  message="File deleted"
   read_files
 }
 
@@ -134,24 +139,48 @@ change_file_name() {
 
   read -p "Are you want change name of fle \"$selected_item\" (Y/n): " confirm
   if [[ "$confirm" != "Y" ]]; then
+    message="Change name canceled"
     return
   fi
 
   read -p "Enter new name of file: " new_name
 
   if [[ -z "$new_name" ]]; then
-    echo "Error! No new name provided!"
+    message="Error! No new name provided!"
     return
   fi
 
   mv -- "$directory/$selected_item" "$directory/$new_name"
+  message="File renemed"
 
   read_files
 }
 
-# move_file() {
-#
-# }
+move_file() {
+  selected_item="${files[$current_selection]}"
+
+  if [ ! -e "$directory/$selected_item" ]; then
+    message="Error: File does not exist"
+    return
+  fi
+
+  read -p "Enter new directory for the file: $(pwd)/" target_directory
+
+  if [ ! -d "$target_directory" ]; then
+    message="Error: Target directory does not exist"
+    return
+  fi
+
+  mv "$directory/$selected_item" "$target_directory" >>debug.txt 2>&1
+
+  if [ $? -eq 0 ]; then
+    message="File \"$selected_item\" moved to \"$target_directory\"."
+  else
+    message="Error: Operation failed"
+  fi
+
+  read_files
+}
 
 # main
 
@@ -182,6 +211,9 @@ while true; do
     ;;
   "c") #change_file_name
     change_file_name
+    ;;
+  "m")
+    move_file
     ;;
   "q") # quite
     break
