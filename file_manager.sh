@@ -93,10 +93,10 @@ draw_screen() {
   list_main_files
   list_side_files
 
-  tput cup $((${#files[@]} + 4)) 0
+  tput cup 12 0
   echo "Strzałki: Nawigacja | d: usuń | c: zmień nazwę | m: przenieś | q: Wyjście"
 
-  tput cup $((${#files[@]} + 6)) 0
+  tput cup 14 0
   echo "$message"
 }
 
