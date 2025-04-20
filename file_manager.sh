@@ -8,8 +8,7 @@ current_selection=0
 directory="$(pwd)"
 files=()
 columns=$(tput cols)
-left_width=$((columns / 2 - 2))
-right_width=$((columns / 2 - 2))
+width=$((columns / 2 - 2))
 max_display=10 #side files in list_side_files function
 files_to_move=()
 message="Helo in simple file comander in bash!"
@@ -69,10 +68,10 @@ list_side_files() {
       subfiles+=("$subfile")
     done < <(ls -1 "$directory/$selected_item")
 
-    tput cup 0 $((left_width + 4))
-    echo "Zawartość: $slected_item"
+    tput cup 0 $((width + 4))
+    echo "Zawartość: $selected_item"
     for j in "${!subfiles[@]}"; do
-      tput cup $((j + 2)) $((left_width + 4))
+      tput cup $((j + 2)) $((width + 4))
       echo " ${subfiles[$j]}"
 
       ((count++))
@@ -83,7 +82,7 @@ list_side_files() {
   fi
 
   if [ "${#subfiles[@]}" -gt "$max_display" ]; then
-    tput cup $((j + 3)) $((left_width + 4))
+    tput cup $((j + 3)) $((width + 4))
     echo " ..."
   fi
 
@@ -123,7 +122,7 @@ delate_file() {
     return
   fi
 
-  read -p "Are you sure aboute delete file \"$selected_item\"? (Y/n): " confirm
+  read -rp "Are you sure aboute delete file \"$selected_item\"? (Y/n): " confirm
   if [[ "$confirm" != "Y" ]]; then
     message="Delete canceled"
     return
@@ -137,13 +136,13 @@ delate_file() {
 change_file_name() {
   selected_item="${files[$current_selection]}"
 
-  read -p "Are you want change name of fle \"$selected_item\" (Y/n): " confirm
+  read -rp "Are you want change name of fle \"$selected_item\" (Y/n): " confirm
   if [[ "$confirm" != "Y" ]]; then
     message="Change name canceled"
     return
   fi
 
-  read -p "Enter new name of file: " new_name
+  read -rp "Enter new name of file: " new_name
 
   if [[ -z "$new_name" ]]; then
     message="Error! No new name provided!"
@@ -164,14 +163,12 @@ move_file() {
     return
   fi
 
-  read -p "Enter new directory for the file: $(pwd)/" target_directory
+  read -rp "Enter new directory for the file: $(pwd)/" target_directory
 
   if [ ! -d "$target_directory" ]; then
     message="Error: Target directory does not exist"
     return
   fi
-
-  mv "$directory/$selected_item" "$target_directory" >>debug.txt 2>&1
 
   if [ $? -eq 0 ]; then
     message="File \"$selected_item\" moved to \"$target_directory\"."
@@ -181,6 +178,18 @@ move_file() {
 
   read_files
 }
+
+#add_file_to_list() {
+#
+#}
+#
+#delete_files_from_list() {
+#
+#}
+#
+#delete_dict() {
+#
+#}
 
 # main
 
