@@ -93,10 +93,16 @@ draw_screen() {
   list_side_files
 
   tput cup 12 0
-  echo "Strzałki: Nawigacja | d: usuń | c: zmień nazwę | m: przenieś | q: Wyjście"
+  echo "Strzałki: Nawigacja | d: usuń | c: zmień nazwę | m: przenieś | q: Wyjście | a: Dodaj plik do listy"
 
   tput cup 14 0
   echo "$message"
+
+  tput cup 16 0
+  echo "Zawartość listy do przeniesienia:"
+  for f in "${files_to_move[@]}"; do
+    echo "→ $f"
+  done
 }
 
 enter_directory() {
@@ -179,14 +185,21 @@ move_file() {
   read_files
 }
 
-#add_file_to_list() {
-#
-#}
-#
+add_file_to_list() {
+  selected_item="${files[$current_selection]}"
+  if [ ! -e "$directory/$selected_item" ]; then
+    message="File soes not exist"
+    return
+  fi
+
+  files_to_move+=("$directory/$selected_item")
+  message="File added to list"
+}
+
 #delete_files_from_list() {
 #
 #}
-#
+
 #delete_dict() {
 #
 #}
@@ -226,6 +239,9 @@ while true; do
     ;;
   "q") # quite
     break
+    ;;
+  "a")
+    add_file_to_list
     ;;
   esac
   draw_screen
