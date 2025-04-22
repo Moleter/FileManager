@@ -164,19 +164,19 @@ change_file_name() {
 move_file() {
   selected_item="${files[$current_selection]}"
 
-  if [ ! -e "$directory/$selected_item" ]; then
+  if [[ ! -e "$directory/$selected_item" ]]; then
     message="Error: File does not exist"
     return
   fi
 
   read -rp "Enter new directory for the file: $(pwd)/" target_directory
 
-  if [ ! -d "$target_directory" ]; then
+  if [[ ! -d "$target_directory" ]]; then
     message="Error: Target directory does not exist"
     return
   fi
 
-  if [ $? -eq 0 ]; then
+  if [[ $? -eq 0 ]]; then
     message="File \"$selected_item\" moved to \"$target_directory\"."
   else
     message="Error: Operation failed"
@@ -196,9 +196,31 @@ add_file_to_list() {
   message="File added to list"
 }
 
-#delete_files_from_list() {
-#
-#}
+clear_files_from_list() {
+  read -rp "Are you sure to clear files list? (Y/n): " confirm
+
+  if [[ "$confirm" != "Y" ]]; then
+    return
+  fi
+
+  message="Files form list clered"
+  files_to_move=()
+}
+
+delete_files_from_list() {
+  read -rp "Are you sure to delete files from list? (Y/n): " confirm
+
+  if [[ "$confirm" != "Y" ]]; then
+    return
+  fi
+
+  for file in files_to_move[@]; do
+    rm -- file
+  done
+
+  message="Files form list deleted"
+  files_to_move=()
+}
 
 #delete_dict() {
 #
@@ -231,7 +253,7 @@ while true; do
   "d") #delete file
     delate_file
     ;;
-  "c") #change_file_name
+  "r") #change_file_name
     change_file_name
     ;;
   "m")
@@ -242,6 +264,12 @@ while true; do
     ;;
   "a")
     add_file_to_list
+    ;;
+  "c")
+    clear_files_from_list
+    ;;
+  "D")
+    delete_files_from_list
     ;;
   esac
   draw_screen
