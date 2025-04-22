@@ -93,7 +93,7 @@ draw_screen() {
   list_side_files
 
   tput cup 12 0
-  echo "Strzałki: Nawigacja | d: usuń | c: zmień nazwę | m: przenieś | q: Wyjście | a: Dodaj plik do listy"
+  echo "Arrows: Navigation | d: Delate | c: Change name | m: Move file | q: Quit | a: Add file to list | X: Delate dictionery"
 
   tput cup 14 0
   echo "$message"
@@ -120,11 +120,16 @@ go_back() {
   current_selection=0
 }
 
-delate_file() {
+delate_file() { #d
   selected_item="${files[$current_selection]}"
 
   if [ ! -e "$directory/$selected_item" ]; then
     message="Error: File dosen't exist"
+    return
+  fi
+
+  if [ -d "$directory/$selected_item" ]; then
+    message="Error: Can not delate directory, use \"X\""
     return
   fi
 
@@ -139,7 +144,7 @@ delate_file() {
   read_files
 }
 
-change_file_name() {
+change_file_name() { #r
   selected_item="${files[$current_selection]}"
 
   read -rp "Are you want change name of fle \"$selected_item\" (Y/n): " confirm
@@ -161,7 +166,7 @@ change_file_name() {
   read_files
 }
 
-move_file() {
+move_file() { #e
   selected_item="${files[$current_selection]}"
 
   if [[ ! -e "$directory/$selected_item" ]]; then
@@ -185,7 +190,7 @@ move_file() {
   read_files
 }
 
-add_file_to_list() {
+add_file_to_list() { #a
   selected_item="${files[$current_selection]}"
   if [ ! -e "$directory/$selected_item" ]; then
     message="File soes not exist"
@@ -196,7 +201,7 @@ add_file_to_list() {
   message="File added to list"
 }
 
-clear_files_from_list() {
+clear_files_from_list() { #c
   read -rp "Are you sure to clear files list? (Y/n): " confirm
 
   if [[ "$confirm" != "Y" ]]; then
@@ -207,7 +212,7 @@ clear_files_from_list() {
   files_to_move=()
 }
 
-delete_files_from_list() {
+delete_files_from_list() { #D
   read -rp "Are you sure to delete files from list? (Y/n): " confirm
 
   if [[ "$confirm" != "Y" ]]; then
@@ -222,9 +227,30 @@ delete_files_from_list() {
   files_to_move=()
 }
 
-#delete_dict() {
-#
-#}
+delete_dict() { #X
+  selected_item=${files[$current_selection]}
+
+  if [ ! -e "$directory/$selected_item" ]; then
+    message="Dict does not exist"
+    return
+  fi
+
+  if [ ! -d "$directory/$selected_item" ]; then
+    message="Error: Cannot delate file with this function - use \"d\""
+    return
+  fi
+
+  read -rp "Are you sure to dalate dictionery with evrything that it contains \"$directory/$selected_item\"? (Y/n): " confirm
+
+  if [ "$confirm" != Y ]; then
+    message="Operation canceled"
+    return
+  fi
+
+  rm -r "$directory/$selected_item"
+  message="directory deleted"
+  read_files
+}
 
 # main
 
@@ -270,6 +296,9 @@ while true; do
     ;;
   "D")
     delete_files_from_list
+    ;;
+  "X")
+    delete_dict
     ;;
   esac
   draw_screen
