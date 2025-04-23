@@ -111,7 +111,10 @@ enter_directory() {
     directory="$directory/$selected_item"
     read_files
     current_selection=0
+  else
+    message="Error: You cannot enter file"
   fi
+
 }
 
 go_back() {
