@@ -239,8 +239,8 @@ delete_files_from_list() { #D
     return
   fi
 
-  for file in files_to_move[@]; do
-    rm -- file
+  for file in "${files_to_move[@]}"; do
+    rm -- "$file"
   done
 
   message="Files form list deleted"
