@@ -92,13 +92,13 @@ draw_screen() {
   list_main_files
   list_side_files
 
-  tput cup 12 0
-  echo "Arrows: Navigation | d: Delate | D: Delate files from list | c: Clear files from list | r: Change file name | m: Move file | M: Move files from list here | q: Quit | a: Add file to list | X: Delate dictionery"
+  tput cup 13 0
+  echo "Arrows: Navigation | d: Delate | D: Delate files from list | c: Clear files from list | u: Create new directory | r: Change file name | m: Move file | M: Move files from list here | q: Quit | a: Add file to list | X: Delate dictionery"
 
-  tput cup 14 0
+  tput cup 15 0
   echo "$message"
 
-  tput cup 16 0
+  tput cup 17 0
   echo "Zawartość listy do przeniesienia:"
   for file in "${files_to_move[@]}"; do
     echo "→ $file"
@@ -272,6 +272,20 @@ delete_dict() { #X
   read_files
 }
 
+create_directory() { # u
+  read -rp "Are you sure to create directory here? (Y/n): " confirmation
+  if [[ "$confirmation" != "Y" ]]; then
+    message="Operation canceled"
+    return
+  fi
+
+  read -rp "Enter name of new directory: " new_directory
+  mkdir "$directory/$new_directory"
+  message="Directory $new_directory created"
+
+  read_files
+}
+
 # main
 
 draw_screen
@@ -322,6 +336,9 @@ while true; do
     ;;
   "X")
     delete_dict
+    ;;
+  "u")
+    create_directory
     ;;
   esac
   draw_screen
