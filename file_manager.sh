@@ -93,15 +93,15 @@ draw_screen() {
   list_side_files
 
   tput cup 12 0
-  echo "Arrows: Navigation | d: Delate | c: Change name | m: Move file | q: Quit | a: Add file to list | X: Delate dictionery"
+  echo "Arrows: Navigation | d: Delate | D: Delate files from list | c: Clear files from list | r: Change file name | m: Move file | M: Move files from list here | q: Quit | a: Add file to list | X: Delate dictionery"
 
   tput cup 14 0
   echo "$message"
 
   tput cup 16 0
   echo "Zawartość listy do przeniesienia:"
-  for f in "${files_to_move[@]}"; do
-    echo "→ $f"
+  for file in "${files_to_move[@]}"; do
+    echo "→ $file"
   done
 }
 
@@ -169,7 +169,7 @@ change_file_name() { #r
   read_files
 }
 
-move_file() { #e
+move_file() { #m
   selected_item="${files[$current_selection]}"
 
   if [[ ! -e "$directory/$selected_item" ]]; then
@@ -193,15 +193,32 @@ move_file() { #e
   read_files
 }
 
-add_file_to_list() { #a
-  selected_item="${files[$current_selection]}"
-  if [ ! -e "$directory/$selected_item" ]; then
-    message="File soes not exist"
+move_files_from_list() { #M
+  read -rp "Are you sure to move all files from list here? (Y/n): " confirmation
+  if [[ $confirmation != "Y" ]]; then
+    message="Operation canceled"
     return
   fi
 
-  files_to_move+=("$directory/$selected_item")
-  message="File added to list"
+  for file in "${files_to_move[@]}"; do
+    mv "$file" "$directory" >>debug.txt 2>&1
+  done
+
+  message="All files moves"
+
+  read_files
+  files_to_move=()
+}
+
+add_file_to_list() { #a
+  selected_item="${files[$current_selection]}"
+  if [[ ! -e "$directory/$selected_item" ]]; then
+    message="File does not exist"
+    return
+  elif [[ -f "$directory/$selected_item" ]]; then
+    files_to_move+=("$directory/$selected_item")
+    message="File added to list"
+  fi
 }
 
 clear_files_from_list() { #c
@@ -287,6 +304,9 @@ while true; do
     ;;
   "m")
     move_file
+    ;;
+  "M")
+    move_files_from_list
     ;;
   "q") # quite
     break
